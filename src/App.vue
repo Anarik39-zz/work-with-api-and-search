@@ -1,28 +1,59 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+  <v-app>
+    <v-container>
+      <header class="header">
+        <filter-publications :callback="getValueFilter" />
+      </header>
+      <v-main>
+        <publications-list :list="currentPublications" />
+      </v-main>
+    </v-container>
+  </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import { mapGetters } from "vuex";
+import FilterPublications from "./components/FilterPublications.vue";
+import PublicationsList from "./components/PublicationsList.vue";
 
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+  components: { PublicationsList, FilterPublications },
+  name: "App",
+
+  data: () => ({
+    valueFilter: null,
+  }),
+
+  computed: {
+    ...mapGetters({ usersPublications: "getUsersPublications" }),
+    ...mapGetters({ publicationsList: "getItemsPublications" }),
+
+    currentPublications() {
+      if (!this.valueFilter) {
+        return this.publicationsList;
+      } else {
+        const userId = this.usersPublications.find((user) => user.name === this.valueFilter).id;
+        return this.publicationsList.filter((el) => el.userId === userId);
+      }
+    },
+  },
+
+  methods: {
+    getValueFilter(value) {
+      this.valueFilter = value;
+    },
+  },
+
+  mounted() {
+    this.$store.dispatch("fetchDataUsers");
+    this.$store.dispatch("fetchDataPublications");
+  },
+};
 </script>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+<style scoped lang="scss">
+.header {
+  max-width: 550px;
+  margin: 0 auto;
 }
 </style>
