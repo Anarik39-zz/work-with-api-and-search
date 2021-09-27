@@ -1,23 +1,18 @@
 <template>
   <v-autocomplete
-    @change="callback(value)"
-    :items="filterNames"
-    v-model="value"
+    clearable
     solo
     dense
+    :search-input.sync="value"
+    :items="filterNames"
     label="Filter by author..."
-  >
-  </v-autocomplete>
+  ></v-autocomplete>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
 export default {
   name: "FilterPublications",
-
-  props: {
-    callback: Function,
-  },
 
   data() {
     return {
@@ -27,6 +22,11 @@ export default {
 
   computed: {
     ...mapGetters({ filterNames: "getUsersName" }),
+  },
+  watch: {
+    value(val) {
+      this.$emit("callback", val);
+    },
   },
 };
 </script>

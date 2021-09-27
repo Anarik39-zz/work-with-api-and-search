@@ -2,7 +2,7 @@
   <v-app>
     <v-container>
       <header class="header">
-        <filter-publications :callback="getValueFilter" />
+        <filter-publications @callback="getValueFilter" />
       </header>
       <v-main>
         <publications-list :list="currentPublications" />
@@ -32,8 +32,10 @@ export default {
       if (!this.valueFilter) {
         return this.publicationsList;
       } else {
-        const userId = this.usersPublications.find((user) => user.name === this.valueFilter).id;
-        return this.publicationsList.filter((el) => el.userId === userId);
+        let users = this.usersPublications
+          .filter((user) => user.name.toLowerCase().search(this.valueFilter.toLowerCase()) != -1)
+          .map((user) => user.id);
+        return this.publicationsList.filter((el) => users.includes(el.userId));
       }
     },
   },
@@ -44,9 +46,9 @@ export default {
     },
   },
 
-  mounted() {
-    this.$store.dispatch("fetchDataUsers");
-    this.$store.dispatch("fetchDataPublications");
+  async mounted() {
+    await this.$store.dispatch("fetchDataUsers");
+    await this.$store.dispatch("fetchDataPublications");
   },
 };
 </script>
